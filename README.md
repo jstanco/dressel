@@ -1,2 +1,2 @@
 # dressel
-GeoTiff feature classification
+GeoTIFF feature classification
