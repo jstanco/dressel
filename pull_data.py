@@ -64,4 +64,5 @@ async def main():
                 content = await client.fetch_content(extension)
                 await save_content(content, save_path)
 
+
 asyncio.run(main())
