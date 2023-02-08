@@ -1,7 +1,7 @@
 import asyncio
 import os
 from pathlib import Path
-from typing import AsyncIterator, Dict
+from typing import Dict
 
 import aiofiles
 import aiofiles.os
@@ -27,7 +27,7 @@ class EarthdataClient:
 
             assert response.status == 200
             return await response.read()
-        
+
     def _get(self, extension: str):
         return self._client.get(self._make_url(extension))
 
