@@ -83,13 +83,15 @@ async def main():
 
     async with EarthdataClient() as client:
         for image_ext, annotation_ext in tqdm(extensions):
-            image = await client.fetch_image(image_ext)
             save_path = os.path.join(save_dir, image_ext)
-            await save_image(image, save_path)
+            if not os.path.exists(save_path):
+                image = await client.fetch_image(image_ext)
+                await save_image(image, save_path)
 
-            annotation = await client.fetch_annotation(annotation_ext)
             save_path = os.path.join(save_dir, annotation_ext)
-            await save_annotation(annotation, save_path)
+            if not os.path.exists(save_path):
+                annotation = await client.fetch_annotation(annotation_ext)
+                await save_annotation(annotation, save_path)
 
 
 asyncio.run(main())
