@@ -6,7 +6,7 @@ from typing import AsyncIterator, Dict
 import aiofiles
 import aiofiles.os
 import aiohttp
-from tqdm import tqdm
+import tqdm
 
 
 class EarthdataClient:
@@ -58,7 +58,7 @@ async def main():
     save_dir = os.path.expanduser("~/datasets")
 
     async with EarthdataClient() as client:
-        for extension in tqdm(make_extensions("extensions.txt")):
+        for extension in tqdm.tqdm(make_extensions("extensions.txt")):
             save_path = os.path.join(save_dir, extension)
             if not await aiofiles.os.path.exists(save_path):
                 content = await client.fetch_content(extension)
