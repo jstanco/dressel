@@ -44,6 +44,14 @@ class EarthdataClient:
             assert response.status == 200
             return await response.text()
 
+    async def fetch_content(self, extension: str) -> bytes:
+        async with self._get(extension) as response:
+            if response.status == 404:
+                raise FileNotFoundError
+
+            assert response.status == 200
+            return await response.read()
+        
     def _get(self, extension: str):
         return self._client.get(self._make_url(extension))
 
@@ -71,27 +79,25 @@ async def save_annotation(annotation: str, path: str):
         await f.write(annotation)
 
 
-def make_extensions(images, annotations):
-    with open(images, "r") as fi:
-        with open(annotations, "r") as fd:
-            return list(zip(fi.read().splitlines(), fd.read().splitlines()))
+def make_extensions(path):
+    with open(path, "r") as f:
+        return f.read().splitlines()
+
+
+async def save_content(content: bytes, path: str):
+    await aiofiles.os.makedirs(os.path.dirname(path), exist_ok=True)
+    async with aiofiles.open(path, "wb") as f:
+        await f.write(content)
 
 
 async def main():
     save_dir = os.path.expanduser("~/datasets")
-    extensions = make_extensions("images.txt", "annotations.txt")
 
     async with EarthdataClient() as client:
-        for image_ext, annotation_ext in tqdm(extensions):
-            save_path = os.path.join(save_dir, image_ext)
+        for extension in tqdm(make_extensions("extensions.txt")):
+            save_path = os.path.join(save_dir, extension)
             if not os.path.exists(save_path):
-                image = await client.fetch_image(image_ext)
-                await save_image(image, save_path)
-
-            save_path = os.path.join(save_dir, annotation_ext)
-            if not os.path.exists(save_path):
-                annotation = await client.fetch_annotation(annotation_ext)
-                await save_annotation(annotation, save_path)
-
+                content = await client.fetch_content(extension)
+                await save_content(content, save_path)
 
 asyncio.run(main())
